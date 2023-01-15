@@ -9,7 +9,7 @@ class User(BaseModel):
     name: str
     email: EmailStr
     hashed_password: str
-    created_at: datetime.datetime
+    created_at: Optional[datetime.datetime]
     updated_at: datetime.datetime
 
 
