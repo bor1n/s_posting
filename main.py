@@ -1,11 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+from core.exceptions import DatabaseConnectionFailException
 from db.base import database
-from endpoint import users, auth
+from endpoint import users, auth, posts
 import uvicorn
 
 app = FastAPI(title="S Posting")
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(posts.router, prefix="/posts", tags=["posts"])
+
+
+@app.exception_handler(DatabaseConnectionFailException)
+async def database_exception_handler(request: Request, exc: DatabaseConnectionFailException):
+    return JSONResponse(
+        status_code=500,
+        content={"message": f"Database connection fail: {exc.msg}"},
+    )
 
 
 @app.on_event("startup")
