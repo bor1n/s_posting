@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 
 from core.exceptions import UserNotFoundException, UserAlreadyExistsException
 from models.user import User, UserIn
@@ -11,17 +11,34 @@ from .depends import get_user_repository, get_current_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[User])
+@router.get("/", response_model=List[User], response_model_exclude={"hashed_password"})
 async def read_users(
         users: UserRepository = Depends(get_user_repository),
-        limit: int = 100,
-        offset: int = 0,
+        limit: int = Query(
+            default=100,
+            title="Limit",
+            description="Max size of returning list",
+            ge=0,
+            le=1000
+        ),
+        offset: int = Query(
+            default=0,
+            title="Offset",
+            description="Amount  to skip",
+            ge=0
+        ),
 ):
-    users = await users.get_all(limit=limit, offset=offset)
-    return users
+    user_list = await users.get_all(limit=limit, offset=offset)
+    return user_list
 
 
-@router.post("/", response_model=User, response_model_exclude={"hashed_password"})
+@router.post("/",
+             response_model=User,
+             response_model_exclude={"hashed_password"},
+             responses={
+                 409: {"description": "Account already exists"},
+             },
+             )
 async def create_user(
         user: UserIn,
         users: UserRepository = Depends(get_user_repository),
@@ -40,17 +57,26 @@ async def create_user(
               response_model=User,
               response_model_exclude={"hashed_password"},
               responses={
-                  404: {
-                      "description": "Not Found",
-                  },
+                  404: {"description": "User not Found"},
+                  403: {"description": "Permission denied"},
               },
               )
 async def update_user(
-        user_id: int,
         user: UserIn,
+        user_id: int = Query(
+            default=0,
+            title="User ID",
+            description="""ID of 'User' to update\n
+            0: - self, authenticated 'User'\n>
+            1...: - ID of 'User'. Requires permission""",
+            ge=0,
+        ),
         users: UserRepository = Depends(get_user_repository),
         current_user: User = Depends(get_current_user)
 ):
+    if not user_id:
+        user_id = current_user.id
+
     try:
         old_user = await users.get_by_id(user_id)
     except UserNotFoundException:

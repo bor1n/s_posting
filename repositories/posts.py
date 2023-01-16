@@ -2,6 +2,7 @@ import datetime
 
 from typing import List
 
+from core.enums import ReactionType
 from core.exceptions import PostNotFoundException
 from models.post import Post, PostIn
 from .base import BaseRepository
@@ -27,6 +28,7 @@ class PostRepository(BaseRepository):
             user_id=user_id,
             content=post_in.content,
             visibility=post_in.visibility,
+            reactions={reaction: 0 for reaction in ReactionType},
             created_at=datetime.datetime.utcnow(),
             updated_at=datetime.datetime.utcnow(),
         )

@@ -20,9 +20,9 @@ class Post(BasePost):
     user_id: Optional[int] = None
     created_at: Optional[datetime.datetime]
     updated_at: datetime.datetime
-    reactions: Dict[ReactionType, int] = {reaction: 0 for reaction in ReactionType}  # todo: remove default value
+    reactions: Optional[Dict[ReactionType, int]]  # = {reaction: 0 for reaction in ReactionType}  # todo: remove default value
 
-    def get_permission(self, current_user_id: int):
+    def has_view_permission(self, current_user_id: int):
         if self.visibility == Visibility.NOBODY:
             if current_user_id != self.user_id:
                 raise PermissionDeniedException

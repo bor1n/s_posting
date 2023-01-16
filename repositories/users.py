@@ -12,7 +12,7 @@ from db.users import users
 
 class UserRepository(BaseRepository):
     async def get_all(self, limit: int = 100, offset: int = 0) -> List[User]:
-        query = users.select().limit(limit).offset(offset)
+        query = users.select().limit(limit).offset(offset).order_by(users.c.id)
         return await self.database.fetch_all(query=query)
 
     async def get_by_id(self, user_id: int) -> User:

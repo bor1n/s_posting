@@ -33,7 +33,7 @@ async def get(
     post = await posts.get(post_id=post_id)
     if post.visibility != Visibility.EVERYONE:
         current_user = Depends(get_current_user)
-        post.get_permission(current_user_id=current_user.id)
+        post.has_view_permission(current_user_id=current_user.id)
     post.reactions = await reactions.get_count(post_id=post_id)
     return post
 
@@ -75,6 +75,7 @@ async def update(
 
     post = await posts.update(post_id=post_id, post_in=post)
     post.id = old_post.id
+    post.reactions = old_post.reactions
     return post
 
 

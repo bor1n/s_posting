@@ -16,6 +16,8 @@ def database_connection(method):
             connection_fail_string = "[Errno 10061] Connect call failed"
             if connection_fail_string in str(ex):
                 raise DatabaseConnectionFailException(connection_fail_string)
+            else:
+                raise
     return wrapped
 
 
