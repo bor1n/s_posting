@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException, status
 from models.user import User
 from core.security import JWTBearer, decode_access_token
 from repositories.posts import PostRepository
+from repositories.reactions import ReactionRepository
 from repositories.users import UserRepository
 from db.base import database
 
@@ -13,6 +14,10 @@ def get_user_repository() -> UserRepository:
 
 def get_post_repository() -> PostRepository:
     return PostRepository(database)
+
+
+def get_reaction_repository() -> ReactionRepository:
+    return ReactionRepository(database)
 
 
 async def get_current_user(

@@ -4,18 +4,19 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, validator, constr
 
 
-class User(BaseModel):
-    id: Optional[int] = None
+class BaseUser(BaseModel):
     name: str
     email: EmailStr
+
+
+class User(BaseUser):
+    id: Optional[int] = None
     hashed_password: str
     created_at: Optional[datetime.datetime]
     updated_at: datetime.datetime
 
 
-class UserIn(BaseModel):
-    name: str
-    email: EmailStr
+class UserIn(BaseUser):
     password: constr(min_length=8)
     password2: constr(min_length=8)
 

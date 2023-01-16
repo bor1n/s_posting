@@ -1,3 +1,8 @@
+
+class PermissionDeniedException(Exception):
+    pass
+
+
 class UserNotFoundException(Exception):
     pass
 
@@ -7,6 +12,10 @@ class UserAlreadyExistsException(Exception):
 
 
 class PostNotFoundException(Exception):
+    pass
+
+
+class ReactionNotFoundException(Exception):
     pass
 
 

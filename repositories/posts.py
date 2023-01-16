@@ -26,6 +26,7 @@ class PostRepository(BaseRepository):
         new_post = Post(
             user_id=user_id,
             content=post_in.content,
+            visibility=post_in.visibility,
             created_at=datetime.datetime.utcnow(),
             updated_at=datetime.datetime.utcnow(),
         )
@@ -39,7 +40,7 @@ class PostRepository(BaseRepository):
     async def update(self, post_id: int, post_in: PostIn) -> Post:
         post = Post(
             content=post_in.content,
-            created_at=datetime.datetime.utcnow(),
+            visibility=post_in.visibility,
             updated_at=datetime.datetime.utcnow(),
         )
 
@@ -47,12 +48,12 @@ class PostRepository(BaseRepository):
 
         # something is not clear, looks like a hack
         # a better idea is to use raw connection to check updated count, but I don't wanna
-        query = posts.update().where(posts.c.id == post_id).values(**values).returning(posts.c.created_at)
-        created_at_response = await self.database.execute(query)
-        if not created_at_response:  # means if UPDATE returned nothing with RETURNING in statement
+        query = posts.update().where(posts.c.id == post_id).values(**values).returning(posts.c.updated_at)
+        updated_at_response = await self.database.execute(query)
+        if not updated_at_response:  # means if UPDATE returned nothing with RETURNING in statement
             raise PostNotFoundException
 
-        post.created_at = created_at_response
+        post.updated_at = updated_at_response
         return post
 
     async def delete(self, post_id: int) -> int:
